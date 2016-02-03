@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>System HorseMan</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="/css/styl.css">
+</head>
+
+<body>
+<div>
+    <a href="arbiter.html">Część przeznaczona dla sędziów</a>
+    <table>
+        <tr>
+            <td> <img id="status" src="/img/bullet_red.png" width="35"> </td>
+            <td> <input id="open" type="button" value="Połącz"> </td>
+            <td> <input id="close" type="button" value="Rozłącz"> </td>
+        </tr>
+    </table>
+    <p id="message"></p>
+    <div class="scoredTable"></div>
+    <div class="horsesTable"></div>
+</div>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/lib/jquery.min.js"></script>
+<script src="/js/spectator.js"></script>
+</body>
+
+</html>

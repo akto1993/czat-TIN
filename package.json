@@ -1,0 +1,12 @@
+{
+  "name": "ZadCzat",
+  "version": "0.1.0",
+  "description": "Szkielet komunikatora z Socket.io",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "express": "^4.13.3",
+    "socket.io": "^1.3.7"
+  }
+}
