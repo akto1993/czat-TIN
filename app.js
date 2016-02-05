@@ -4,6 +4,7 @@ var app = express();
 var httpServer = require("http").Server(app);
 var io = require("socket.io")(httpServer);
 var mongoose = require('mongoose');
+var loggedInArbiters = [];
 
 var port = process.env.PORT || 3000;
 
@@ -183,6 +184,7 @@ var horseScored = function(scoredHorseId){
         scored.forEach(function(score) {
             scoredList.push(score);
         });
+        console.log("długość wyniku"+scoredList.length);
         io.sockets.emit('newScore',scoredList,scoredHorseId);
     });
 };
@@ -210,10 +212,9 @@ io.sockets.on("connection", function (socket) {
     socket.on("addScore", function (horseId,arbiterId,t,g,k,n,r){
         scores.count({}, function(err, c) {
             addScore(c+1,horseId,arbiterId,t,g,k,n,r);
-
         });
         console.log("Przesłano konia " + horseId );
-        horseScored(horseId);       //temporary!
+        setTimeout(function(){ horseScored(horseId);  }, 200);//tego tutaj nie ma :-)
     });
 
     /*---------------czyszczenie DB--------------*/
@@ -223,10 +224,35 @@ io.sockets.on("connection", function (socket) {
         scores.remove({}, function(err,removed) {});
     });
 
+    socket.on("check", function(secretInput){
+      console.log("Sekret do sprawdzenia" + secretInput);
+      if(loggedInArbiters.indexOf(secretInput) >= 0 && loggedInArbiters.indexOf(secretInput) < loggedInArbiters.length){
+        socket.emit('validSecret', false , "jesteś już zalogowany");
+      } else {
+        arbiters.find({secret: secretInput}, function(err, wyniczek) {
+          var sedziowie = [];
+          if (typeof wyniczek !== 'undefined'){
+            wyniczek.forEach(function(score) {
+                sedziowie.push(score);
+            });
+          }
+          if (sedziowie.length < 1){
+            socket.emit('validSecret', false , "niepoprawny sekret");
+          } else{
+            loggedInArbiters.push(secretInput);
+            socket.emit('validSecret', true , "jest git");
+          }
+        });
+      }
+    });
+    socket.on("disconectArbiter", function(secretInput){
+      var i = loggedInArbiters.indexOf(secretInput);
+      delete loggedInArbiters[i];
+    });
+
     socket.on("getHorses", function (){
         horses.find({}, function(err, koniki) {
             var userMap = [];
-
             koniki.forEach(function(horse) {
                 userMap.push(horse);
             });
@@ -246,6 +272,9 @@ io.sockets.on("connection", function (socket) {
         });
         console.log("wysłano konie");
     });
+    socket.on("beginCompetition", function (){
+
+    });
 
 
 });
@@ -254,3 +283,4 @@ io.sockets.on("connection", function (socket) {
 httpServer.listen(port, function () {
     console.log('Serwer HTTP działa na porcie ' + port);
 });
+/*-------------------------------------------------------------------------------------------------------------------*/

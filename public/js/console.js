@@ -80,7 +80,7 @@ $(function(){
             message.html("Błąd połączenia z serwerem: '" + JSON.stringify(err) + "'");
         });
     });
-    
+
     // Zamknij połączenie po kliknięciu guzika „Rozłącz”
     close.click(function (event) {
         $('#sendSecret').prop('disabled', true);
@@ -100,7 +100,7 @@ $(function(){
     });
 
     $('#sendSecret').click(function (event) {
-        socket.emit('addHorse',$('#secretText').val());
+        socket.emit('addArbiter',$('#secretText').val());
         $('#secretText').val("");
     });
 
@@ -123,5 +123,5 @@ $(function(){
         $('#KSpan').html(10);
         $('#NSpan').html(10);
         $('#RSpan').html(10);
-    })
+    });
 });

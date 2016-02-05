@@ -11,14 +11,26 @@ $(function(){
     var socket;
     var horsesList = [];
 
+    function orderByProperty(prop) {
+      var args = Array.prototype.slice.call(arguments, 1);
+      return function (a, b) {
+        var equality = a[prop] - b[prop];
+        if (equality === 0 && arguments.length > 1) {
+          return orderByProperty.apply(null, args)(a, b);
+        }
+        return equality;
+      };
+    }
 
     var isItNumber = function(lol){
         if(typeof lol != 'undefined')
-            return lol
-        else return "Brak"
-    }
+            return lol;
+        else return "Brak";
+    };
 
     var print = function(){
+        var sortedSorses = horsesList;
+        sortedSorses.sort(orderByProperty('SA', 'St', 'Sr'));
         $('.horsesSection').remove();
         var content = "";
         $(".horsesTable").append(
@@ -29,13 +41,15 @@ $(function(){
             "<td>St</td>" +
             "<td>Sr</td>" +
             "</table>");
-        for(var i = 0; i < horsesList.length; i++) {
-            content +=  "<tr><td>"+horsesList[i].id+"</td>"+
-                        "<td>"+horsesList[i].name+"</td>" +
-                        "<td>"+isItNumber(horsesList[i].SA)+"</td>" +
-                        "<td>"+isItNumber(horsesList[i].St)+"</td>" +
-                        "<td>"+isItNumber(horsesList[i].Sr)+"</td>" +
+        for(var i = 0; i < sortedSorses.length; i++) {
+          if(isItNumber(sortedSorses[i].SA) != "Brak"){
+            content +=  "<tr><td>"+sortedSorses[i].id+"</td>"+
+                        "<td>"+sortedSorses[i].name+"</td>" +
+                        "<td>"+isItNumber(sortedSorses[i].SA)+"</td>" +
+                        "<td>"+isItNumber(sortedSorses[i].St)+"</td>" +
+                        "<td>"+isItNumber(sortedSorses[i].Sr)+"</td>" +
                         "</tr>";
+                      }
         }
         $(".horsesSection").append(content);
     };
@@ -92,7 +106,7 @@ $(function(){
             Sr += Number(scoredList[i].r);
             Nr += 1;
         }
-        if(SA != 0 && NA != 0 && St != 0 && Nt != 0 && Sr != 0 && Nr != 0) {
+        if(SA !== 0 && NA !== 0 && St !== 0 && Nt !== 0 && Sr !== 0 && Nr !== 0) {
             SA = SA / NA;
             St = St / Nt;
             Sr = Sr / Nr;
@@ -143,14 +157,14 @@ $(function(){
             print();
         });
         socket.on("newScore", function (score,scoredHorseId){
-            console.log("otrzymano wynik" + scoredHorseId);
+            console.log("długość wyniku" + score.length);
             printNewScore(score,scoredHorseId);
         });
         socket.on("addOldScores", function (score,scoredHorseId){
             addScore(score,scoredHorseId);
         });
     });
-    
+
     // Zamknij połączenie po kliknięciu guzika „Rozłącz”
     close.click(function (event) {
         close.prop('disabled', true);

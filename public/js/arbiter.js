@@ -8,7 +8,8 @@ $(function(){
     var open = $("#open");
     var close = $("#close");
     var message = $("#message");
-    var nick = $('#nick');
+    var mySecret = $('#secret');
+    var validSecret = false;
     var horseToScored = 10;
     var socket;
 
@@ -50,18 +51,29 @@ $(function(){
             socket = io({forceNew: true});
         }
         socket.on('connect', function () {
-
-            open.prop('disabled', true);
-            close.prop('disabled', false);
-            $('#sendScore').prop('disabled', false);
-            status.attr('src',"img/bullet_green.png");
-            message.html("Połączono z serwerem.");
-            console.log('Nawiązano połączenie przez Socket.io');
+          socket.emit("check", mySecret.val());
+          setTimeout(function(){
+          if (validSecret){
+              open.prop('disabled', true);
+              close.prop('disabled', false);
+              mySecret.prop('disabled', true);
+              $('#sendScore').prop('disabled', false);
+              status.attr('src',"img/bullet_green.png");
+              message.html("Połączono z serwerem.");
+              console.log('Nawiązano połączenie przez Socket.io');
+          }else {
+            //message.html("Błąd połączenia z serwerem: coś nie tak");
+            socket.io.disconnect();
+            open.prop('disabled', false);
+          }
+        }, 2000);
         });
         socket.on('disconnect', function () {
+            socket.emit('disconectArbiter',mySecret.val());
             $('#sendScore').prop('disabled', true);
             open.prop('disabled', false);
             close.prop('disabled', true);
+            mySecret.prop('disabled', false);
             status.attr('src', "img/bullet_red.png");
             console.log('Połączenie przez Socket.io zostało zakończone');
         });
@@ -76,18 +88,19 @@ $(function(){
         socket.on("kon", function (kon) {
             message.append("<p>" + kon +'</p>');
         });
-        /*socket.on("wrongSecret", function (){
-            close.prop('disabled', true);
-            open.prop('disabled', false);
-            $('#sendScore').prop('disabled', true);
-            message.html("Niepoprawny sekret sędziego");
-            socket.io.disconnect();
-            console.dir(socket);
-        });*/
+        socket.on("validSecret", function (valid,error){
+          if (valid){
+            validSecret = true;
+          }else{
+            validSecret = false;
+            message.html("Błąd połączenia z serwerem: '"+ error +"'");
+          }
+        });
     });
-    
+
     // Zamknij połączenie po kliknięciu guzika „Rozłącz”
     close.click(function (event) {
+        socket.emit('disconectArbiter',mySecret.val());
         close.prop('disabled', true);
         open.prop('disabled', false);
         $('#sendScore').prop('disabled', true);
@@ -98,16 +111,17 @@ $(function(){
 
     // Wyślij komunikat do serwera po naciśnięciu guzika „Wyślij”
     $('#sendScore').click(function (event){
-            socket.emit('addScore', horseToScored, 1, $('#TInput').val(), $('#GInput').val(), $('#KInput').val(), $('#NInput').val(), $('#RInput').val());
+            socket.emit('addScore', $('#horseId').val(), 1, $('#TInput').val(), $('#GInput').val(), $('#KInput').val(), $('#NInput').val(), $('#RInput').val());
             $('#TInput').val(10);
             $('#GInput').val(10);
             $('#KInput').val(10);
             $('#NInput').val(10);
             $('#RInput').val(10);
+            $('#horseId').val("");
             $('#TSpan').html(10);
             $('#GSpan').html(10);
             $('#KSpan').html(10);
             $('#NSpan').html(10);
             $('#RSpan').html(10);
-    })
+    });
 });
