@@ -1,6 +1,6 @@
-@color-base: rgba(163, 213, 230, .85);
-@radius: 10px;
-@opacity: 0.85;
+@color-base: rgba(163, 213, 230, .85); //tło kolor
+@radius: 10px; // divy zaokrąglone rogi
+@opacity: 0.85; //przezroczystość difow
 @font: Tahoma, Geneva, sans-serif;
 
 #base {
@@ -12,7 +12,7 @@
 
 .login_class {
   #base;
-  display: inline-block;
+  display: inline-block; //ogranicza difa do konca tekstow
   input[type='text'] {
     border: solid @radius/2 #C9C9C9;
     box-shadow: inset 0 0 0 1px #707070;
@@ -21,24 +21,24 @@
 }
 
 .form_class {
-  #base
+  #base;
 }
 
-.body {
-  color: #00940A;
-  font-weight: bold;
+body {
+  color: #00940A; //czcionki
+  //font-weight: bold;
   font-family: @font;
   background-image: url("../img/kon.jpg");
   background-repeat: no-repeat;
   background-position: center;
   background-attachment: fixed;
   webkit-background-size: cover;
-  -moz-background-size: cover;
+  moz-background-size: cover;
   -o-background-size: cover;
   background-size: cover;
 }
 
-.table {
+table {
   background-color: rgba(189, 254, 140, 0.6);
-  color: black;
+  color: blue;
 }

@@ -8,6 +8,7 @@ $(function(){
     var open = $("#open");
     var close = $("#close");
     var message = $("#message");
+    var table = document.getElementById("resultsTable");
     var socket;
     var horsesList = [];
 
@@ -30,39 +31,7 @@ $(function(){
         return equality;
       };
     }
-
-    var isItNumber = function(lol){
-        if(typeof lol != 'undefined')
-            return lol;
-        else return "Brak";
-    };
-
-    var print = function(){
-        var sortedSorses = horsesList;
-        sortedSorses.sort(orderByProperty('SA', 'St', 'Sr'));
-        $('.horsesSection').remove();
-        var content = "";
-        $(".horsesTable").append(
-            "<table class='horsesSection'><tr>" +
-            "<td>id</td>" +
-            "<td>name</td>" +
-            "<td>SA</td>" +
-            "<td>St</td>" +
-            "<td>Sr</td>" +
-            "</table>");
-        for(var i = sortedSorses.length-1; i >= 0; i--) {
-          if(isItNumber(sortedSorses[i].SA) != "Brak"){
-            content +=  "<tr><td>"+sortedSorses[i].id+"</td>"+
-                        "<td>"+sortedSorses[i].name+"</td>" +
-                        "<td>"+isItNumber(sortedSorses[i].SA)+"</td>" +
-                        "<td>"+isItNumber(sortedSorses[i].St)+"</td>" +
-                        "<td>"+isItNumber(sortedSorses[i].Sr)+"</td>" +
-                        "</tr>";
-                      }
-        }
-        $(".horsesSection").append(content);
-    };
-
+    
     var printNewScore = function(scoredList,scoredHorseId){
         $('.scoredTable').empty();
         var SA = 0,NA = 0,St = 0,Nt = 0,Sr = 0,Nr = 0;
@@ -72,7 +41,7 @@ $(function(){
             "<h2>" +
             horsesList[horsesList.getIndexByProperty("id",scoredHorseId)].name+
             "</h2>"+
-            "<table class='scoredSection'><tr>" +
+            "<table class='scoredSection' border=\"2\"><tr>" +
             "<td>sędzia</td>" +
             "<td>T</td>" +
             "<td>G</td>" +
@@ -101,11 +70,47 @@ $(function(){
         horsesList[horsesList.getIndexByProperty("id",scoredHorseId)].SA = SA;
         horsesList[horsesList.getIndexByProperty("id",scoredHorseId)].St = St;
         horsesList[horsesList.getIndexByProperty("id",scoredHorseId)].Sr = Sr;
-        print();
+        //print();
+        var licznik = 0;
+        $("#resultsTable tr").each(function() {
+          if(licznik !== 0) {
+              var p = $(table.rows[licznik].cells[2]).text();
+              if (SA > p) {
+                  return;
+              } else if (SA == p) {
+                  //console.log("rowne");
+                  var t = $(table.rows[licznik].cells[3]).text();
+                  if(St > t) {
+                      return;
+                  } else if(St == t) {
+                      var r = $(table.rows[licznik].cells[3]).text();
+                      if(Sr > r) {
+                          return;
+                      } else if(Sr == r) {
+                          return;
+                          }
+                      }
+                  }
+              }
+          licznik++;
+      });
+
+      var row = table.insertRow(licznik);
+      var c0 = row.insertCell(0);
+      var c1 = row.insertCell(1);
+      var c2 = row.insertCell(2);
+      var c3 = row.insertCell(3);
+      var c4 = row.insertCell(4);
+      c0.innerHTML = scoredHorseId;
+      c1.innerHTML = horsesList[horsesList.getIndexByProperty("id",scoredHorseId)].name;
+      c2.innerHTML = SA;
+      c3.innerHTML = St;
+      c4.innerHTML = Sr;
         $(".scoredSection").append(content + "<br><b>SA: </b>"+SA+"<b>St: </b>"+St+"<b>Sr: </b>"+Sr);
     };
 
     var addScore = function(scoredList,scoredHorseId){
+      console.log("jestem w addScore");
         var SA = 0,NA = 0,St = 0,Nt = 0,Sr = 0,Nr = 0;
         for(var i = 0; i < scoredList.length; i++) {
             SA += Number(scoredList[i].t) + Number(scoredList[i].g) + Number(scoredList[i].k) + Number(scoredList[i].n) + Number(scoredList[i].r);
@@ -122,8 +127,8 @@ $(function(){
             horsesList[horsesList.getIndexByProperty("id",scoredHorseId)].SA = SA;
             horsesList[horsesList.getIndexByProperty("id",scoredHorseId)].St = St;
             horsesList[horsesList.getIndexByProperty("id",scoredHorseId)].Sr = Sr;
-            print();
         }
+        //print();
     };
 
     status.html = "Brak połącznia";
@@ -161,16 +166,19 @@ $(function(){
         socket.on("kon", function (kon) {
             message.append("<p>" + kon +'</p>');
         });
-        socket.on("printHorses", function (horses){
+        socket.on("addHorses", function (horses){
             horsesList = horses;
-            print();
         });
         socket.on("newScore", function (score,scoredHorseId){
             console.log("długość wyniku" + score.length);
             printNewScore(score,scoredHorseId);
         });
-        socket.on("addOldScores", function (score,scoredHorseId){
-            addScore(score,scoredHorseId);
+        socket.on("addOldScores", function (scores){
+          scores.forEach(function(jeden){
+            addScore(jeden.score,jeden.scoredHorseId);
+            console.log("jeden.scoredHorseId"+jeden.scoredHorseId);
+          });
+          print();
         });
         //TODO: jakiś socket ktory wyświetlił by monit o zokończonych zawodach czy coś
     });

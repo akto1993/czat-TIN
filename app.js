@@ -1,11 +1,12 @@
 /* jshint node: true */
 var express = require('express');
+var _ = require("underscore");
 var app = express();
 var httpServer = require("http").Server(app);
 var io = require("socket.io")(httpServer);
 var mongoose = require('mongoose');
 var loggedInArbiters = [];
-var randomizedArbiters = [1,2,3,4,5];
+var randomizedArbiters = [];
 var actualHorse = 0;
 
 var port = process.env.PORT || 3000;
@@ -191,27 +192,6 @@ var horseScored = function(scoredHorseId){
     });
 };
 
-//zwraca tablicę z idekami sędziow
-var randomizeArbiters = function(){
-  console.log("losujemy sędziow");
-  arbiters.count({}, function(err, c) {
-    randomizedArbiters = [1,2,3,4,5];
-    var rzecz = 0;
-    /*while(randomizedArbiters.length < 5){
-      rzecz = Math.floor((Math.random() * c) + 1);
-      if(randomizedArbiters.indexOf(rzecz) >= 0 && randomizedArbiters.indexOf(rzecz) < randomizedArbiters.length){
-        randomizedArbiters.push(rzecz);
-      }
-    }*/
-  });
-  console.log(randomizedArbiters);
-  io.sockets.emit('horseToScored', randomizedArbiters , actualHorse);
-};
-
-
-
-
-
 /*-------------------------------------------------------------------------------------------------------------------*/
 /*---------------------------sokety i inne bajery-------------------------*/
 io.sockets.on("connection", function (socket) {
@@ -251,11 +231,27 @@ io.sockets.on("connection", function (socket) {
         setTimeout(function(){
           scores.find({horseId: horseIdInput}, function(err, wyniczek) {
             console.log("Dlugosc wyniczku "+wyniczek.length);
-            if(wyniczek.length > 4){
-              actualHorse++;
-              horseScored(horseIdInput);
-              randomizeArbiters();
-            }
+              if(wyniczek.length > 4){
+                //TODO: jakieś konczenie zawodow
+                actualHorse++;
+                horses.count({}, function(err, numberOfHorses) {
+                  if(actualHorse <= numberOfHorses){
+                  horseScored(horseIdInput);
+                  //randomizeArbiters();
+                  arbiters.find({}, function(err, scored) {
+                      var scoredList = [];
+                      scored.forEach(function(score) {
+                        scoredList.push(score.id);
+                      });
+                      randomizedArbiters = _.sample(scoredList, [5]);
+
+                      io.sockets.emit('horseToScored', randomizedArbiters , actualHorse);
+                  });
+                }else{
+                    io.sockets.emit('horseToScored', [] , 0);
+                  }
+                });
+              }
           });
         }, 200);
     });
@@ -266,7 +262,7 @@ io.sockets.on("connection", function (socket) {
         arbiters.remove({}, function(err,removed) {});
         scores.remove({}, function(err,removed) {});
     });
-
+/*-------------------------------------------------------------------------------------------------------------------*/
     socket.on("check", function(secretInput){
       //TODO: można by jebnac odpytanie sedziow aby sprawdzic czy lista zalogowanych jest aktualna
       //Potencjalne ryzyko - ansynchronicznosc
@@ -286,6 +282,7 @@ io.sockets.on("connection", function (socket) {
           } else{
             loggedInArbiters.push(secretInput);
             socket.emit('validSecret', true , sedziowie[0].id , "jest git");
+            io.sockets.emit('horseToScored', randomizedArbiters , actualHorse);
           }
         });
       }
@@ -294,7 +291,7 @@ io.sockets.on("connection", function (socket) {
       var i = loggedInArbiters.indexOf(secretInput);
       delete loggedInArbiters[i];
     });
-
+/*-------------------------------------------------------------------------------------------------------------------*/
     socket.on("getHorses", function (){
         horses.find({}, function(err, koniki) {
             var userMap = [];
@@ -302,38 +299,47 @@ io.sockets.on("connection", function (socket) {
                 userMap.push(horse);
             });
 
-            socket.emit('printHorses',userMap);
+            socket.emit('addHorses',userMap);
             horses.find({}, function(err, koniki){
+              var scoredList = [];
                 koniki.forEach(function(horse) {
                     scores.find({horseId: horse.id}, function(err, scored) {
                         var scoredList = [];
                         scored.forEach(function(score) {
                             scoredList.push(score);
                         });
-                        io.sockets.emit('addOldScores',scoredList,horse.id);
+                        if(typeof scoredList[0] != 'undefined'){
+                          socket.emit('newScore',scoredList,horse.id);
+                        }
                     });
                 });
             });
         });
         console.log("wysłano konie");
     });
+    /*-------------------------------------------------------------------------------------------------------------------*/
     //Mechanika obsługi zawodow
     socket.on("beginCompetition", function (){
-      //TODO: dorobic mechanike zaczynania zawodow
       horses.count({}, function(err, numberOfHorses) {
         arbiters.count({}, function(err, numberOfArbiters) {
           if (numberOfHorses > 4 && numberOfArbiters > 4){
             actualHorse = 1;
-            randomizeArbiters();
+            arbiters.find({}, function(err, scored) {
+                var scoredList = [];
+                scored.forEach(function(score) {
+                  scoredList.push(score.id);
+                });
+                randomizedArbiters = _.sample(scoredList, [5]);
+                io.sockets.emit('horseToScored', randomizedArbiters , actualHorse);
+            });
           } else {
             console.log("za mało koni albo sędziow");
           }
         });
       });
     });
-    //Done? TODO: jakiś soket ktory przyjmuje z konsoli potrzebe monitu o czasie i przesyla taki monit do sędziow
     socket.on("hurryUp", function (){
-      socket.emit('displayMonit');
+      io.sockets.emit('displayMonit');
     });
 });
 

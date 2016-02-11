@@ -4,7 +4,7 @@
 <head>
     <title>System HorseMan</title>
     <meta charset="UTF-8">
-    <!--<link rel="stylesheet" href="/css/styl.css">-->
+    <link rel="stylesheet" href="/css/moj.css">
 </head>
 
 <body>
@@ -18,7 +18,9 @@
               <td> <input id="close" type="button" value="Rozłącz"> </td>
           </tr>
       </table>
-      <br>Twoje id: &nbsp;<h1 id="myId"></h1>
+      <br>Twojnumer sedziowski: &nbsp;<b id="myId"></b>
+      <br>Aktualnie oceniany kon: &nbsp;<b id="actualHorseId"></b>
+      <br>
       T:&nbsp;<input type="range" id="TInput" min="0" max="20"><span id="TSpan"></span><br>
       G:&nbsp;<input type="range" id="GInput" min="0" max="20"><span id="GSpan"></span><br>
       K:&nbsp;<input type="range" id="KInput" min="0" max="20"><span id="KSpan"></span><br>
@@ -26,7 +28,7 @@
       R:&nbsp;<input type="range" id="RInput" min="0" max="20"><span id="RSpan"></span><br>
       <input id="sendScore" type="button" value="Wyślij">
       <p id="message"></p>
-      <h1 id="monit"></h1>
+      <font color="red"><h1 id="monit"></h1></font>
   </div>
   <script src="/socket.io/socket.io.js"></script>
   <script src="/lib/jquery.min.js"></script>

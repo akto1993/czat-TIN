@@ -84,8 +84,9 @@ $(function(){
         //Done?   TODO:czy ocenia jeśli tak to jakiego konia mam oceniać
         //przyjmuje tablice idkow sędziow oraz ideka konia
         socket.on("horseToScored", function (arbiterIdek,horseId){
+          //TODO: jakieś wyświetlanie ktorego konia teraz oczeniaja sedziowie
           console.log("arbiter Id " + arbiterIdek + " horseId " + horseId + " numerk " + myArbiterId);
-          if(arbiterIdek.indexOf(Number(myArbiterId)) >= 0 && arbiterIdek.indexOf(Number(myArbiterId)) < arbiterIdek.length){
+          if(arbiterIdek.indexOf(myArbiterId) >= 0 && arbiterIdek.indexOf(myArbiterId) < arbiterIdek.length){
             //ten arbiter został wylosowany
             console.log("Ten arbiter został wylosowany");
             $('#monit').html("");
@@ -96,6 +97,11 @@ $(function(){
             $("#RInput").prop('disabled', false);
             $('#sendScore').prop('disabled', false);
             horseToScored = horseId;
+            if (horseId === 0){
+              $('#actualHorseId').html("Oczekuje na rozpoczęcie zawodów");
+            }else{
+              $('#actualHorseId').html(horseId);
+            }
           }else{
             //ten arbiter oczekuje na kolejne losowanie
             $('#monit').html("");
@@ -105,6 +111,11 @@ $(function(){
             $("#NInput").prop('disabled', true);
             $("#RInput").prop('disabled', true);
             $('#sendScore').prop('disabled', true);
+            if (horseId === 0){
+              $('#actualHorseId').html("Oczekuje na rozpoczęcie zawodów");
+            }else{
+              $('#actualHorseId').html(horseId + "<br><font color=\"red\">Nie zostałeś wybrany do oceniania tego konia</font>");
+            }
           }
         });
         //Done?  TODO:guziczek do pośpieszania sędziow
