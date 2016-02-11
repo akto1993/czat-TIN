@@ -10,7 +10,6 @@ $(function(){
     var sendHorse = $("#sendHorse");
     var horseName = $("#horseName");
     var message = $("#message");
-    var nick = $('#nick');
     var socket;
 
     /*----------oninputy dla suwaczków-----------*/
@@ -123,5 +122,12 @@ $(function(){
         $('#KSpan').html(10);
         $('#NSpan').html(10);
         $('#RSpan').html(10);
+    });
+    //Done?  TODO: onclick button z emitem arbiter ma się spieszyć
+    $('#hurryUp').click(function (event){
+        socket.emit('hurryUp');
+    });
+    $('#beginCompetition').click(function (event){
+        socket.emit('beginCompetition');
     });
 });

@@ -11,6 +11,15 @@ $(function(){
     var socket;
     var horsesList = [];
 
+    Array.prototype.getIndexByProperty = function (name, value) {
+      for (var i = 0; i < this.length; i++) {
+          if (this[i][name] == value) {
+              return i;
+          }
+      }
+      return -1;
+    };
+
     function orderByProperty(prop) {
       var args = Array.prototype.slice.call(arguments, 1);
       return function (a, b) {
@@ -41,7 +50,7 @@ $(function(){
             "<td>St</td>" +
             "<td>Sr</td>" +
             "</table>");
-        for(var i = 0; i < sortedSorses.length; i++) {
+        for(var i = sortedSorses.length-1; i >= 0; i--) {
           if(isItNumber(sortedSorses[i].SA) != "Brak"){
             content +=  "<tr><td>"+sortedSorses[i].id+"</td>"+
                         "<td>"+sortedSorses[i].name+"</td>" +
@@ -61,7 +70,7 @@ $(function(){
         $(".scoredTable").append(
             "<h1>Ostatnio oceniony koń</h1>"+
             "<h2>" +
-            horsesList[scoredHorseId-1].name+
+            horsesList[horsesList.getIndexByProperty("id",scoredHorseId)].name+
             "</h2>"+
             "<table class='scoredSection'><tr>" +
             "<td>sędzia</td>" +
@@ -89,9 +98,9 @@ $(function(){
         SA = SA/NA;
         St = St/Nt;
         Sr = Sr/Nr;
-        horsesList[scoredHorseId-1].SA = SA;
-        horsesList[scoredHorseId-1].St = St;
-        horsesList[scoredHorseId-1].Sr = Sr;
+        horsesList[horsesList.getIndexByProperty("id",scoredHorseId)].SA = SA;
+        horsesList[horsesList.getIndexByProperty("id",scoredHorseId)].St = St;
+        horsesList[horsesList.getIndexByProperty("id",scoredHorseId)].Sr = Sr;
         print();
         $(".scoredSection").append(content + "<br><b>SA: </b>"+SA+"<b>St: </b>"+St+"<b>Sr: </b>"+Sr);
     };
@@ -110,9 +119,9 @@ $(function(){
             SA = SA / NA;
             St = St / Nt;
             Sr = Sr / Nr;
-            horsesList[scoredHorseId - 1].SA = SA;
-            horsesList[scoredHorseId - 1].St = St;
-            horsesList[scoredHorseId - 1].Sr = Sr;
+            horsesList[horsesList.getIndexByProperty("id",scoredHorseId)].SA = SA;
+            horsesList[horsesList.getIndexByProperty("id",scoredHorseId)].St = St;
+            horsesList[horsesList.getIndexByProperty("id",scoredHorseId)].Sr = Sr;
             print();
         }
     };
@@ -163,6 +172,7 @@ $(function(){
         socket.on("addOldScores", function (score,scoredHorseId){
             addScore(score,scoredHorseId);
         });
+        //TODO: jakiś socket ktory wyświetlił by monit o zokończonych zawodach czy coś
     });
 
     // Zamknij połączenie po kliknięciu guzika „Rozłącz”

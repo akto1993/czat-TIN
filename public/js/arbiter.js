@@ -10,7 +10,8 @@ $(function(){
     var message = $("#message");
     var mySecret = $('#secret');
     var validSecret = false;
-    var horseToScored = 10;
+    var horseToScored = 0;
+    var myArbiterId = 0;
     var socket;
 
     /*----------oninputy dla suwaczków-----------*/
@@ -41,6 +42,11 @@ $(function(){
 
     status.html = "Brak połącznia";
     close.prop('disabled', true);
+    $("#TInput").prop('disabled', true);
+    $("#GInput").prop('disabled', true);
+    $("#KInput").prop('disabled', true);
+    $("#NInput").prop('disabled', true);
+    $("#RInput").prop('disabled', true);
     $('#sendScore').prop('disabled', true);
     /*-------------------------------------------------------------------------------------------------------------------*/
     // Po kliknięciu guzika „Połącz” tworzymy nowe połączenie WS
@@ -53,16 +59,7 @@ $(function(){
         socket.on('connect', function () {
           socket.emit("check", mySecret.val());
           setTimeout(function(){
-          if (validSecret){
-              open.prop('disabled', true);
-              close.prop('disabled', false);
-              mySecret.prop('disabled', true);
-              $('#sendScore').prop('disabled', false);
-              status.attr('src',"img/bullet_green.png");
-              message.html("Połączono z serwerem.");
-              console.log('Nawiązano połączenie przez Socket.io');
-          }else {
-            //message.html("Błąd połączenia z serwerem: coś nie tak");
+          if (!validSecret){
             socket.io.disconnect();
             open.prop('disabled', false);
           }
@@ -76,26 +73,62 @@ $(function(){
             mySecret.prop('disabled', false);
             status.attr('src', "img/bullet_red.png");
             console.log('Połączenie przez Socket.io zostało zakończone');
+            myArbiterId = 0;
+            $('#myId').html("");
         });
         /*-------------------------------------------------------------------------------------------------------------------*/
 
         socket.on("error", function (err) {
             message.html("Błąd połączenia z serwerem: '" + JSON.stringify(err) + "'");
         });
-        socket.on("aqq", function (data) {
-            message.append("<p>" + data +'</p>');
+        //Done?   TODO:czy ocenia jeśli tak to jakiego konia mam oceniać
+        //przyjmuje tablice idkow sędziow oraz ideka konia
+        socket.on("horseToScored", function (arbiterIdek,horseId){
+          console.log("arbiter Id " + arbiterIdek + " horseId " + horseId + " numerk " + myArbiterId);
+          if(arbiterIdek.indexOf(Number(myArbiterId)) >= 0 && arbiterIdek.indexOf(Number(myArbiterId)) < arbiterIdek.length){
+            //ten arbiter został wylosowany
+            console.log("Ten arbiter został wylosowany");
+            $('#monit').html("");
+            $("#TInput").prop('disabled', false);
+            $("#GInput").prop('disabled', false);
+            $("#KInput").prop('disabled', false);
+            $("#NInput").prop('disabled', false);
+            $("#RInput").prop('disabled', false);
+            $('#sendScore').prop('disabled', false);
+            horseToScored = horseId;
+          }else{
+            //ten arbiter oczekuje na kolejne losowanie
+            $('#monit').html("");
+            $("#TInput").prop('disabled', true);
+            $("#GInput").prop('disabled', true);
+            $("#KInput").prop('disabled', true);
+            $("#NInput").prop('disabled', true);
+            $("#RInput").prop('disabled', true);
+            $('#sendScore').prop('disabled', true);
+          }
         });
-        socket.on("kon", function (kon) {
-            message.append("<p>" + kon +'</p>');
+        //Done?  TODO:guziczek do pośpieszania sędziow
+        socket.on("displayMonit", function (){
+            $('#monit').html("Pospiesz się!");
         });
-        socket.on("validSecret", function (valid,error){
+        //otrzymanie wyniku sprawdzania poprawności sekretu
+        socket.on("validSecret", function (valid,id,error){
           if (valid){
             validSecret = true;
+            myArbiterId = id;
+            $('#myId').html(id);
+            open.prop('disabled', true);
+            close.prop('disabled', false);
+            mySecret.prop('disabled', true);
+            status.attr('src',"img/bullet_green.png");
+            message.html("Połączono z serwerem.");
+            //TODO: Zapytaj serwer czy co jest teraz oceniane
           }else{
             validSecret = false;
             message.html("Błąd połączenia z serwerem: '"+ error +"'");
           }
         });
+        //TODO: może jakis connection tester aby wyjebać z listy zalogowanych rozlaczonych sedziow
     });
 
     // Zamknij połączenie po kliknięciu guzika „Rozłącz”
@@ -103,25 +136,26 @@ $(function(){
         socket.emit('disconectArbiter',mySecret.val());
         close.prop('disabled', true);
         open.prop('disabled', false);
-        $('#sendScore').prop('disabled', true);
         message.html("Disconnected");
         socket.io.disconnect();
         console.dir(socket);
+        myArbiterId = 0;
+        $('#myId').html("");
     });
 
     // Wyślij komunikat do serwera po naciśnięciu guzika „Wyślij”
     $('#sendScore').click(function (event){
-            socket.emit('addScore', $('#horseId').val(), 1, $('#TInput').val(), $('#GInput').val(), $('#KInput').val(), $('#NInput').val(), $('#RInput').val());
+            socket.emit('addScore', horseToScored, myArbiterId, $('#TInput').val(), $('#GInput').val(), $('#KInput').val(), $('#NInput').val(), $('#RInput').val());
             $('#TInput').val(10);
             $('#GInput').val(10);
             $('#KInput').val(10);
             $('#NInput').val(10);
             $('#RInput').val(10);
-            $('#horseId').val("");
             $('#TSpan').html(10);
             $('#GSpan').html(10);
             $('#KSpan').html(10);
             $('#NSpan').html(10);
             $('#RSpan').html(10);
+            $('#monit').html("");
     });
 });
