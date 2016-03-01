@@ -31,7 +31,7 @@ $(function(){
         return equality;
       };
     }
-    
+
     var printNewScore = function(scoredList,scoredHorseId){
         $('.scoredTable').empty();
         var SA = 0,NA = 0,St = 0,Nt = 0,Sr = 0,Nr = 0;
@@ -103,9 +103,9 @@ $(function(){
       var c4 = row.insertCell(4);
       c0.innerHTML = scoredHorseId;
       c1.innerHTML = horsesList[horsesList.getIndexByProperty("id",scoredHorseId)].name;
-      c2.innerHTML = SA;
-      c3.innerHTML = St;
-      c4.innerHTML = Sr;
+      c2.innerHTML = SA.toFixed(2);
+      c3.innerHTML = St.toFixed(2);
+      c4.innerHTML = Sr.toFixed(2);
         $(".scoredSection").append(content + "<br><b>SA: </b>"+SA+"<b>St: </b>"+St+"<b>Sr: </b>"+Sr);
     };
 
@@ -191,6 +191,4 @@ $(function(){
         socket.io.disconnect();
         console.dir(socket);
     });
-
-    // Wyślij komunikat do serwera po naciśnięciu guzika „Wyślij”
 });

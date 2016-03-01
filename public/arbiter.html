@@ -10,7 +10,7 @@
 <body>
   <div>
       <a href="index.html">Strona główna</a><br>
-      Wpisz sekret sędziego:&nbsp;<input id="secret" type="text" class="nick">
+      Wpisz sekret sędziego:&nbsp;<input id="secret" type="password" class="nick">
       <table>
           <tr>
               <td> <img id="status" src="/img/bullet_red.png" width="35"> </td>
@@ -21,12 +21,14 @@
       <br>Twojnumer sedziowski: &nbsp;<b id="myId"></b>
       <br>Aktualnie oceniany kon: &nbsp;<b id="actualHorseId"></b>
       <br>
-      T:&nbsp;<input type="range" id="TInput" min="0" max="20"><span id="TSpan"></span><br>
-      G:&nbsp;<input type="range" id="GInput" min="0" max="20"><span id="GSpan"></span><br>
-      K:&nbsp;<input type="range" id="KInput" min="0" max="20"><span id="KSpan"></span><br>
-      N:&nbsp;<input type="range" id="NInput" min="0" max="20"><span id="NSpan"></span><br>
-      R:&nbsp;<input type="range" id="RInput" min="0" max="20"><span id="RSpan"></span><br>
-      <input id="sendScore" type="button" value="Wyślij">
+      <div id="divek">
+        T:&nbsp;<input type="range" id="TInput" min="0" max="20"><span id="TSpan"></span><br>
+        G:&nbsp;<input type="range" id="GInput" min="0" max="20"><span id="GSpan"></span><br>
+        K:&nbsp;<input type="range" id="KInput" min="0" max="20"><span id="KSpan"></span><br>
+        N:&nbsp;<input type="range" id="NInput" min="0" max="20"><span id="NSpan"></span><br>
+        R:&nbsp;<input type="range" id="RInput" min="0" max="20"><span id="RSpan"></span><br>
+        <input id="sendScore" type="button" value="Wyślij">
+      </div>
       <p id="message"></p>
       <font color="red"><h1 id="monit"></h1></font>
   </div>

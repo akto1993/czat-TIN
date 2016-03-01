@@ -213,13 +213,6 @@ io.sockets.on("connection", function (socket) {
         });
     });
     socket.on("addScore", function (horseIdInput,arbiterIdInput,T,G,K,N,R){
-        //Done? TODO: sprawdzić czy arbiter już nie dodał wyniku jeśli tak to updejtować go
-        //Done? TODO: sprawdzić czy sędziowie wszyscy sedziowie juz ocenili konia jesli tak to:
-          //kon ++
-          //losujemy nowych sędziow
-          //wywolanie sedziow do oceny
-          //wtedy i tylko wtedy wywolywac horseScored
-
         scores.findOneAndUpdate({horseId: horseIdInput, arbiterId: arbiterIdInput},
                 {$set: {t: T, g: G, k: K, n: N, r: R} },
                 {upsert: true},
@@ -305,10 +298,13 @@ io.sockets.on("connection", function (socket) {
                 koniki.forEach(function(horse) {
                     scores.find({horseId: horse.id}, function(err, scored) {
                         var scoredList = [];
-                        scored.forEach(function(score) {
-                            scoredList.push(score);
-                        });
+                        if(horse.id < actualHorse){
+                          scored.forEach(function(score) {
+                              scoredList.push(score);
+                          });
+                        }
                         if(typeof scoredList[0] != 'undefined'){
+                          _.sortBy(scoredList, 'arbiterId');
                           socket.emit('newScore',scoredList,horse.id);
                         }
                     });

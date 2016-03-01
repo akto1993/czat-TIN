@@ -44,6 +44,8 @@ $(function(){
     $('#clean').prop('disabled', true);
     $('#sendScore').prop('disabled', true);
     $('#sendSecret').prop('disabled', true);
+      $('#beginCompetition').prop('disabled', true);
+      $('#hurryUp').prop('disabled', true);
     /*-------------------------------------------------------------------------------------------------------------------*/
     // Po kliknięciu guzika „Połącz” tworzymy nowe połączenie WS
     open.click(function (event) {
@@ -58,6 +60,8 @@ $(function(){
             sendHorse.prop('disabled', false);
             $('#clean').prop('disabled', false);
             $('#sendScore').prop('disabled', false);
+            $('#beginCompetition').prop('disabled', false);
+            $('#hurryUp').prop('disabled', false);
             open.prop('disabled', true);
             close.prop('disabled', false);
             status.attr('src',"img/bullet_green.png");
@@ -69,6 +73,8 @@ $(function(){
             $('#clean').prop('disabled', true);
             sendHorse.prop('disabled', true);
             $('#sendScore').prop('disabled', true);
+            $('#beginCompetition').prop('disabled', true);
+            $('#hurryUp').prop('disabled', true);
             open.prop('disabled', false);
             status.attr('src', "img/bullet_red.png");
             console.log('Połączenie przez Socket.io zostało zakończone');
@@ -85,6 +91,8 @@ $(function(){
         $('#sendSecret').prop('disabled', true);
         $('#clean').prop('disabled', true);
         $('#sendScore').prop('disabled', true);
+        $('#beginCompetition').prop('disabled', true);
+        $('#hurryUp').prop('disabled', true);
         close.prop('disabled', true);
         open.prop('disabled', false);
         message.html("Disconnected");

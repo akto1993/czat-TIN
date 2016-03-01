@@ -47,6 +47,7 @@ $(function(){
     $("#KInput").prop('disabled', true);
     $("#NInput").prop('disabled', true);
     $("#RInput").prop('disabled', true);
+    $('#divek').hide();
     $('#sendScore').prop('disabled', true);
     /*-------------------------------------------------------------------------------------------------------------------*/
     // Po kliknięciu guzika „Połącz” tworzymy nowe połączenie WS
@@ -88,7 +89,16 @@ $(function(){
           console.log("arbiter Id " + arbiterIdek + " horseId " + horseId + " numerk " + myArbiterId);
           if(arbiterIdek.indexOf(myArbiterId) >= 0 && arbiterIdek.indexOf(myArbiterId) < arbiterIdek.length){
             //ten arbiter został wylosowany
-            console.log("Ten arbiter został wylosowany");
+            $('#TInput').val(10);
+            $('#GInput').val(10);
+            $('#KInput').val(10);
+            $('#NInput').val(10);
+            $('#RInput').val(10);
+            $('#TSpan').html(10);
+            $('#GSpan').html(10);
+            $('#KSpan').html(10);
+            $('#NSpan').html(10);
+            $('#RSpan').html(10);
             $('#monit').html("");
             $("#TInput").prop('disabled', false);
             $("#GInput").prop('disabled', false);
@@ -96,6 +106,7 @@ $(function(){
             $("#NInput").prop('disabled', false);
             $("#RInput").prop('disabled', false);
             $('#sendScore').prop('disabled', false);
+            $('#divek').show();
             horseToScored = horseId;
             if (horseId === 0){
               $('#actualHorseId').html("Oczekuje na rozpoczęcie zawodów");
@@ -104,6 +115,16 @@ $(function(){
             }
           }else{
             //ten arbiter oczekuje na kolejne losowanie
+            $('#TInput').val(10);
+            $('#GInput').val(10);
+            $('#KInput').val(10);
+            $('#NInput').val(10);
+            $('#RInput').val(10);
+            $('#TSpan').html(10);
+            $('#GSpan').html(10);
+            $('#KSpan').html(10);
+            $('#NSpan').html(10);
+            $('#RSpan').html(10);
             $('#monit').html("");
             $("#TInput").prop('disabled', true);
             $("#GInput").prop('disabled', true);
@@ -111,6 +132,7 @@ $(function(){
             $("#NInput").prop('disabled', true);
             $("#RInput").prop('disabled', true);
             $('#sendScore').prop('disabled', true);
+            $('#divek').hide();
             if (horseId === 0){
               $('#actualHorseId').html("Oczekuje na rozpoczęcie zawodów");
             }else{
@@ -132,7 +154,7 @@ $(function(){
             close.prop('disabled', false);
             mySecret.prop('disabled', true);
             status.attr('src',"img/bullet_green.png");
-            message.html("Połączono z serwerem.");
+            //message.html("Połączono z serwerem.");
             //TODO: Zapytaj serwer czy co jest teraz oceniane
           }else{
             validSecret = false;
@@ -157,16 +179,9 @@ $(function(){
     // Wyślij komunikat do serwera po naciśnięciu guzika „Wyślij”
     $('#sendScore').click(function (event){
             socket.emit('addScore', horseToScored, myArbiterId, $('#TInput').val(), $('#GInput').val(), $('#KInput').val(), $('#NInput').val(), $('#RInput').val());
-            $('#TInput').val(10);
-            $('#GInput').val(10);
-            $('#KInput').val(10);
-            $('#NInput').val(10);
-            $('#RInput').val(10);
-            $('#TSpan').html(10);
-            $('#GSpan').html(10);
-            $('#KSpan').html(10);
-            $('#NSpan').html(10);
-            $('#RSpan').html(10);
             $('#monit').html("");
+    });
+    $(window).on('unload',function(){
+      socket.emit('disconectArbiter',mySecret.val());
     });
 });
